@@ -32,6 +32,8 @@ export type Player = {
   connected: boolean;
   score: number;
   previous: number;
+  previousScore?: number;
+  streak?: number;
   games: Record<Game, number>;
   played: Record<Game, number>;
 };
@@ -53,6 +55,8 @@ export type Round = {
   paused: boolean;
   participants: string[];
   rules: { base: number; speed: number };
+  streaks?: Record<string, number>;
+  bonuses?: Record<string, number>;
 };
 export const games: Record<
   Game,
@@ -469,6 +473,32 @@ export function submit(
   }
   throw Error("Submissions are closed.");
 }
+export function roundStreak(r: Round, p: Player): number {
+  const exempt =
+    (r.game === "bluff" && r.bluffers.includes(p.id)) ||
+    (r.game === "who" && r.author === p.id);
+  if (exempt) return p.streak || 0;
+  const correct =
+    r.game === "bluff"
+      ? r.votes[p.id]?.value === "truth"
+      : r.game === "who"
+        ? r.votes[p.id]?.value === r.author
+        : !!r.answers[p.id] &&
+          ballparkScore(
+            Number(r.answers[p.id].value),
+            Number(r.question.answer),
+            r.question.tolerance || 1,
+          ) >= 675;
+  return correct ? (p.streak || 0) + 1 : 0;
+}
+export function streakBonus(r: Round, p: Player) {
+  const eligible = !(
+    (r.game === "bluff" && r.bluffers.includes(p.id)) ||
+    (r.game === "who" && r.author === p.id)
+  );
+  const streak = roundStreak(r, p);
+  return eligible && streak >= 2 ? Math.min(300, (streak - 1) * 100) : 0;
+}
 export function calculate(r: Round, players: Player[]) {
   const pts: Record<string, number> = Object.fromEntries(
     players.map((p) => [p.id, 0]),
@@ -513,6 +543,9 @@ export function calculate(r: Round, players: Player[]) {
       else if (opt?.author) pts[opt.author] += 250;
     });
   }
+  players.forEach((p) => {
+    pts[p.id] += streakBonus(r, p);
+  });
   return pts;
 }
 export function advance(r: Round, players: Player[], timer: number): Round {

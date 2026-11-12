@@ -1,17 +1,17 @@
 import { type Player, type Round, submit } from "./engine";
 const lies = [
-  ["A very angry goose", "A Highland cow", "A golden eagle"],
-  ["A biscuit tin", "A sleeping cat", "A laboratory mouse"],
+  ["a very angry goose", "Highland cow", "a golden eagle??"],
+  ["a biscuit tin", "Sleeping cat", "a lab mouse"],
   ["Sing to each other", "Cover their eyes", "Sleep upside down"],
   ["A sparkle", "A fan club", "A pink parade"],
   ["A capybara", "A koala", "A platypus"],
   ["A shower curtain", "A greenhouse roof", "A fashionable raincoat"],
 ];
 const stories = [
-  "I thought the moon followed our car everywhere.",
-  "I once accidentally sent a message about someone directly to them.",
-  "Excellent potential. Distracted by snacks.",
-  "We accidentally joined a stranger’s birthday dinner.",
+  "i thought the moon followed our car everywhere lol",
+  "once sent a text about someone... directly to them",
+  "great potential, distracted by snacks",
+  "we accidentally joined some random birthday dinner",
   "I can name every country in under five minutes.",
   "I would finally find out what is in their camera roll.",
   "I waved back at someone who was waving at the person behind me.",

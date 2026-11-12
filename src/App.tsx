@@ -22,7 +22,6 @@ import { Mobile, TV } from "./components/Gameplay";
 import { playSound, unlockAudio } from "./sound";
 import { useParty } from "./store";
 
-import { RoundControls } from "./components/Host";
 import { Dashboard, GameLibrary, Home } from "./pages/Dashboard";
 import { Demo } from "./pages/Demo";
 import { Leaderboard } from "./pages/Leaderboard";
@@ -218,31 +217,9 @@ export default function App() {
           ) : pathname === "/demo" ? (
             <Demo />
           ) : pathname === "/display" ? (
-            <>
-              <TV />
-              <div className="display-controls">
-                <Link to="/demo">← Host controls</Link>
-                <RoundControls />
-              </div>
-            </>
+            <TV />
           ) : pathname === "/play" ? (
             <div className="play-page">
-              <Link to="/demo" className="back-link">
-                ← Back to demo
-              </Link>
-              <label className="player-picker">
-                Playing as
-                <select
-                  value={s.active}
-                  onChange={(e) => s.setActive(e.target.value)}
-                >
-                  {s.players.map((p) => (
-                    <option value={p.id} key={p.id}>
-                      {p.name}
-                    </option>
-                  ))}
-                </select>
-              </label>
               <Mobile />
             </div>
           ) : (

@@ -159,3 +159,42 @@ describe("store orchestration", () => {
     expect(s().round?.points.p0).toBe(1000);
   });
 });
+
+describe("streaks and uninterrupted rounds", () => {
+  it("awards streak bonuses once and skips instructions after standings", () => {
+    const s = () => useParty.getState();
+    s().init(14);
+    s().configure({ rounds: 3 });
+    s().start("ballpark");
+    s().next();
+    s().next();
+    for (let round = 1; round <= 2; round++) {
+      expect(s().round?.phase).toBe("writing");
+      s().sim();
+      s().editSubmission("p0", s().round!.question.answer);
+      s().next();
+      expect(s().round?.points.p0).toBe(round === 1 ? 1000 : 1100);
+      expect(s().round?.bonuses?.p0).toBe(round === 1 ? 0 : 100);
+      s().next();
+      expect(s().players[0].streak).toBe(round);
+      s().next();
+    }
+    s().sim();
+    s().editSubmission("p0", "1000000000000");
+    s().next();
+    s().next();
+    expect(s().players[0].streak).toBe(0);
+  });
+  it("preserves streaks on author turns without inventing a bonus", () => {
+    const p = makePlayers(14);
+    p[0].streak = 3;
+    let r = newRound("who", 1, p, defaults, 30);
+    r = advance(advance(r, p, 30), p, 30);
+    r = simulate(r, p, 30);
+    r = advance(r, p, 30);
+    r = simulate(r, p, 30);
+    const base = calculate(r, p).p0;
+    p[0].streak = 0;
+    expect(calculate(r, p).p0).toBe(base);
+  });
+});

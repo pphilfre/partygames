@@ -79,7 +79,7 @@ npm test
 npm run build
 ```
 
-The 13 tests cover scoring, phases, fair role rotation, bluff attribution, identity validation, speed bands, zero/negative/year numerical answers, closest ties, ranking ties, invalid submissions, starter question validation, deterministic 14-player simulation, actual mobile/store identity guessing, overrides, and cross-game championship scoring.
+The 15 tests cover scoring, phases, fair role rotation, bluff attribution, identity validation, speed bands, zero/negative/year numerical answers, closest ties, ranking ties, invalid submissions, starter question validation, deterministic 14-player simulation, actual mobile/store identity guessing, overrides, and cross-game championship scoring.
 
 Optional browser suite, with the dev server running:
 
@@ -93,3 +93,15 @@ If Chromium is already installed, point `CHROMIUM_PATH` at it for this optional 
 ## Prototype limits
 
 This is a deterministic local simulation, not network multiplayer. Separate devices do not share a room. Browser tabs on the same origin synchronize via storage events; the visible tab drives the timer. Timers stop accepting answers at zero; the host advances writing/voting to preserve reveal control. Countdown advances automatically. There is no background processing while the browser is closed. Sound effects are lightweight synthesized tones. No AI question generation, real authentication, QR requirement, infrastructure setup, or deployment is included.
+
+## Streamlined live gameplay
+
+The player screen has a compact name/score header, question, answer field and submit action. Connection status appears only on failure. TV timers use an animated progress ring and a final-five-second pulse. The TV has no footer or host controls; use `/demo` for phase control and player selection.
+
+Only the first round includes instructions. Subsequent rounds go straight from standings to the next question. Live standings show as many top players as fit comfortably (up to eight); the full roster remains on `/leaderboard`. Rankings animate from previous positions, expand briefly, settle, and count updated points.
+
+Correct streaks earn +100 on the second success, +200 on the third, and +300 thereafter. A wrong or missing eligible answer resets the streak; author/bluffer turns preserve it without awarding a streak bonus. Ballpark qualifies when its accuracy score is at least 675/900. The real bonus appears in round points, leaderboard badges, and animated phone results.
+
+Ballpark submissions arrive as compact player chips from the centre. Its reveal starts with an empty number line, pans and zooms through estimates from furthest to closest at 1.1 seconds per estimate, then animates the correct answer. Reduced motion shows the final result immediately. No duplicate points table is shown beneath the results.
+
+Run `npm run test:live` with the dev server and Chromium installed for the 24-player fit, staged numerical reveal, streak scoring and streamlined phone regression checks.
