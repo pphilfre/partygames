@@ -6,6 +6,8 @@ import {
   makePlayers,
   newRound,
   rank,
+  roundStreak,
+  streakBonus,
   submit,
   type Game,
   type Player,
@@ -122,23 +124,36 @@ export const useParty = create<State>()(
               round:
                 r.number >= s.settings.rounds
                   ? { ...r, phase: "complete" }
-                  : newRound(
-                      r.game,
-                      r.number + 1,
-                      s.players,
-                      s.questions.filter(
-                        (q) =>
-                          !s.settings.pack ||
-                          s.settings.pack === "all" ||
-                          q.pack === s.settings.pack,
+                  : {
+                      ...newRound(
+                        r.game,
+                        r.number + 1,
+                        s.players,
+                        s.questions.filter(
+                          (q) =>
+                            !s.settings.pack ||
+                            s.settings.pack === "all" ||
+                            q.pack === s.settings.pack,
+                        ),
+                        s.settings.timer,
+                        { base: s.settings.base, speed: s.settings.speed },
                       ),
-                      s.settings.timer,
-                      { base: s.settings.base, speed: s.settings.speed },
-                    ),
+                      phase: "writing",
+                    },
             });
             return;
           }
           let next = advance(r, s.players, s.settings.timer);
+          if (next.phase === "reveal")
+            next = {
+              ...next,
+              streaks: Object.fromEntries(
+                s.players.map((p) => [p.id, roundStreak(r, p)]),
+              ),
+              bonuses: Object.fromEntries(
+                s.players.map((p) => [p.id, streakBonus(r, p)]),
+              ),
+            };
           if (next.phase === "standings" && !r.awarded) {
             const positions = rank(s.players);
             const players = s.players.map((p) => {
@@ -170,6 +185,8 @@ export const useParty = create<State>()(
               );
               return {
                 ...p,
+                previousScore: p.score,
+                streak: roundStreak(r, p),
                 previous: positions.find((x) => x.id === p.id)?.rank || 1,
                 games: gameScores,
                 played,

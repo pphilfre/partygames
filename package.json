@@ -8,7 +8,8 @@
     "test": "vitest run",
     "test:browser": "node scripts/browser-qa.cjs",
     "format": "prettier --write src",
-    "test:experience": "node scripts/experience-qa.cjs"
+    "test:experience": "node scripts/experience-qa.cjs",
+    "test:live": "node scripts/live-qa.cjs"
   },
   "dependencies": {
     "@radix-ui/react-dialog": "^1.1.6",

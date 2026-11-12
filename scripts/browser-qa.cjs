@@ -41,9 +41,7 @@ const assert = require("node:assert/strict");
     assert.equal((await state()).round.phase, "writing");
     if (game === "ballpark") {
       await page.locator(".phone-frame input[name=estimate]").fill("88");
-      await page
-        .getByRole("button", { name: "Lock it in", exact: true })
-        .click();
+      await page.getByRole("button", { name: "Submit", exact: true }).click();
       assert.equal((await state()).round.answers.p0.value, "88");
       await shot("05-mobile-estimate-split");
     }
@@ -126,7 +124,7 @@ const assert = require("node:assert/strict");
     "/demo",
   ]) {
     await page.goto("http://localhost:5173" + route);
-    await page.locator("main").waitFor();
+    await page.locator("main").first().waitFor();
     assert.equal(
       await page.evaluate(
         () => document.documentElement.scrollWidth > innerWidth,
