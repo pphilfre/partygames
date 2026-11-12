@@ -22,6 +22,8 @@ import { Mobile, TV } from "./components/Gameplay";
 import { playSound, unlockAudio } from "./sound";
 import { useParty } from "./store";
 
+import { MobileNav } from "./components/Experience";
+import { ExperienceFeedback } from "./feedback";
 import { RoundControls } from "./components/Host";
 import { Dashboard, GameLibrary, Home } from "./pages/Dashboard";
 import { Demo } from "./pages/Demo";
@@ -30,7 +32,7 @@ import { Lobby } from "./pages/Lobby";
 import { Questions } from "./pages/Questions";
 import { SettingsPage } from "./pages/Settings";
 const nav = [
-  ["/dashboard", "Overview", LayoutDashboard],
+  ["/dashboard", "Home", LayoutDashboard],
   ["/dashboard/games", "Game library", Library],
   ["/dashboard/questions", "Question packs", Layers],
   ["/leaderboard", "Championship", Trophy],
@@ -51,7 +53,7 @@ function Sidebar() {
         </div>
         <ChevronDown size={15} />
       </div>
-      <span className="nav-caption">THE CONTROL ROOM</span>
+      <span className="nav-caption">YOUR NEXT GREAT NIGHT</span>
       <nav>
         {nav.map(([to, label, Icon]) => (
           <NavLink
@@ -131,6 +133,7 @@ function Header() {
         <button
           className="icon-button"
           aria-label="Toggle sound effects"
+          aria-pressed={s.settings.sound}
           onClick={() => s.configure({ sound: !s.settings.sound })}
         >
           {s.settings.sound ? <Volume2 size={18} /> : <VolumeX size={18} />}
@@ -190,17 +193,25 @@ export default function App() {
   useEffect(() => {
     window.scrollTo(0, 0);
   }, [pathname]);
+  useEffect(() => {
+    document.documentElement.dataset.reducedMotion = String(s.settings.reduced);
+  }, [s.settings.reduced]);
   const standalone = ["/", "/display", "/play"].includes(pathname);
   return (
     <MotionConfig reducedMotion={s.settings.reduced ? "always" : "user"}>
       <AudioAndClock />
+      <ExperienceFeedback />
       <a href="#main" className="skip-link">
         Skip to content
       </a>
       {!standalone && <Sidebar />}
       <div className={!standalone ? "app-shell" : ""}>
         {!standalone && <Header />}
-        <main id="main" className={!standalone ? "main-content" : ""}>
+        <main
+          id="main"
+          key={pathname}
+          className={!standalone ? "main-content screen-enter" : "screen-enter"}
+        >
           {pathname === "/" ? (
             <Home />
           ) : pathname === "/dashboard" ? (
@@ -253,6 +264,7 @@ export default function App() {
           )}
         </main>
       </div>
+      {!standalone && <MobileNav />}
       {s.error && (
         <div className="toast" role="status">
           {s.error}

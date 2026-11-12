@@ -88,6 +88,20 @@ export function SettingsPage() {
         <h3>Presentation</h3>
         <label className="toggle-row">
           <span>
+            <b>Haptic feedback</b>
+            <small>
+              Light taps and milestone pulses on supported devices. Vibration is
+              unavailable in iOS browsers.
+            </small>
+          </span>
+          <input
+            type="checkbox"
+            checked={s.settings.haptics ?? true}
+            onChange={(e) => s.configure({ haptics: e.target.checked })}
+          />
+        </label>
+        <label className="toggle-row">
+          <span>
             <b>Sound effects</b>
             <small>
               Original synthesized tones. Audio starts after interaction.

@@ -25,3 +25,14 @@ The managed preview relay and shared browser tool were unavailable. Browser chec
 - [Full-screen Ballpark](screenshots/09-tv-ballpark.png)
 - [Full-screen podium](screenshots/10-tv-podium.png)
 - [Final host dashboard](screenshots/11-final-dashboard.png)
+
+## November 2026 experience redesign
+
+- Production TypeScript/Vite build and all 13 engine tests pass.
+- Existing browser flow passes for all three games: host phases, mobile submissions, real scoring, custom questions, and saved state.
+- `npm run test:experience`: 40 route/viewport combinations (320, 390, 768, 1440px), mobile navigation, round-driven journey progress, reduced-motion persistence, and haptic opt-out/opt-in pass.
+- Axe WCAG A/AA scans at 390px with system reduced motion reviewed all 10 routes in their initial states. Fixed supporting-label contrast, including lobby instructions. No remaining automated violations in those scanned states. This does not replace assistive-technology or hardware testing.
+- Updated screenshots 00–08; added 12–14 for mobile Home, Settings, and Lobby.
+- Vibration checks stub the browser API; physical feel and native iOS haptics still need device validation.
+
+See `DESIGN-PLAN.md` for research sources, screen changes, interaction vocabulary, and product follow-ups.

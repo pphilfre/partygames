@@ -19,7 +19,7 @@ import {
 } from "motion/react";
 import { useEffect, useRef, useState } from "react";
 import { games, rank, type Game, type Player } from "../engine";
-import { playSound } from "../sound";
+
 import { useParty } from "../store";
 import { GameArt } from "./Art";
 import { Button } from "./ui";
@@ -689,8 +689,6 @@ export function Mobile({ framed = false }: { framed?: boolean }) {
                     onSubmit={(e) => {
                       e.preventDefault();
                       s.send(value);
-                      if (s.settings.sound) playSound("submit");
-                      navigator.vibrate?.(25);
                     }}
                   >
                     <label htmlFor="player-answer">

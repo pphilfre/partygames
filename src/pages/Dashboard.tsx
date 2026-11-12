@@ -3,27 +3,30 @@ import {
   ArrowUpRight,
   Check,
   FlaskConical,
-  Layers,
-  Library,
   Plus,
   Trophy,
-  Users,
 } from "lucide-react";
 import { Link } from "react-router-dom";
-import { PartyArt } from "../components/Art";
+
 import { Avatar, Standings } from "../components/Gameplay";
 import { Button } from "../components/ui";
-import { games, rank } from "../engine";
+import { games } from "../engine";
 import { useParty } from "../store";
 
+import {
+  PartyHero,
+  PartyJourney,
+  SessionStrip,
+  Mascot,
+} from "../components/Experience";
 import { GameCards, PageTitle } from "../components/Host";
 export function Dashboard() {
-  const s = useParty(),
-    list = rank(s.players);
+  const s = useParty();
   return (
     <>
       <PageTitle
-        title="Good people. Great games"
+        eyebrow="LET’S MAKE A NIGHT OF IT"
+        title="Hey, party starter"
         description="You bring the people. We’ll bring the friendly competition."
       >
         <Button variant="secondary" asChild>
@@ -39,97 +42,9 @@ export function Dashboard() {
           </Link>
         </Button>
       </PageTitle>
-      <section className="welcome-banner">
-        <div className="banner-copy">
-          <span className="eyebrow">
-            <span className="live-dot" /> YOUR NEXT GREAT NIGHT STARTS HERE
-          </span>
-          <h2>
-            A little chaos.
-            <br />A lot of good company.
-          </h2>
-          <p>
-            Three games. One championship. Endless “one more round.”
-            <br />
-            Turn your living room into everyone’s favourite game show.
-          </p>
-          <Button variant="dark" asChild>
-            <Link
-              to="/demo"
-              onClick={() => {
-                s.init(14);
-                s.start("bluff");
-              }}
-            >
-              Launch Demo <ArrowUpRight size={17} />
-            </Link>
-          </Button>
-          <span className="demo-caption">
-            14 party people included. No invites needed.
-          </span>
-        </div>
-        <PartyArt />
-        <span className="banner-scribble">better together ↗</span>
-      </section>
-      <div className="stats-grid">
-        <div>
-          <span className="stat-icon green">
-            <Users size={20} />
-          </span>
-          <span>
-            <small>Party people</small>
-            <strong>
-              {s.players.length}
-              <em>
-                <span className="live-dot" />
-                {s.players.filter((p) => p.connected).length} connected
-              </em>
-            </strong>
-          </span>
-        </div>
-        <div>
-          <span className="stat-icon purple">
-            <Library size={20} />
-          </span>
-          <span>
-            <small>Games ready to go</small>
-            <strong>
-              3<em>A little something for everyone</em>
-            </strong>
-          </span>
-        </div>
-        <div>
-          <span className="stat-icon peach">
-            <Layers size={20} />
-          </span>
-          <span>
-            <small>Your question collection</small>
-            <strong>
-              {s.questions.length}
-              <em>
-                Across {new Set(s.questions.map((q) => q.pack)).size} curated
-                packs
-              </em>
-            </strong>
-          </span>
-        </div>
-        <div>
-          <span className="stat-icon yellow">
-            <Trophy size={20} />
-          </span>
-          <span>
-            <small>Championship</small>
-            <strong className="stat-word">
-              {s.history.length ? "Game on" : "Up for grabs"}
-              <em>
-                {s.history.length
-                  ? `${s.history.length} rounds in the books`
-                  : "Every legend starts somewhere"}
-              </em>
-            </strong>
-          </span>
-        </div>
-      </div>
+      <PartyHero />
+      <SessionStrip />
+      <PartyJourney />
       <section className="section">
         <div className="section-heading">
           <div>
@@ -283,9 +198,9 @@ export function Home() {
       </nav>
       <section className="home-hero">
         <div>
-          <span className="eyebrow">A GOOD NIGHT IS A GROUP EFFORT</span>
+          <span className="eyebrow">YOUR FRIENDS. YOUR GAME SHOW.</span>
           <h1>
-            Less small talk.
+            Big laughs.
             <br />
             More{" "}
             <span>
@@ -319,12 +234,10 @@ export function Home() {
               </Link>
             </Button>
           </div>
-          <small>
-            14 friends included. No downloads. No awkward icebreakers.
-          </small>
+          <small>Try the local demo with 14 simulated players.</small>
         </div>
         <div className="home-art">
-          <PartyArt />
+          <Mascot />
           <span className="home-sticker">
             YOUR PLACE.
             <br />

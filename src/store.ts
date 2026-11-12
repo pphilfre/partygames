@@ -18,6 +18,7 @@ export type Settings = {
   rounds: number;
   sound: boolean;
   reduced: boolean;
+  haptics: boolean;
   party: string;
   pack?: string;
   base: number;
@@ -59,6 +60,7 @@ const config: Settings = {
   rounds: 3,
   sound: false,
   reduced: false,
+  haptics: true,
   party: "The Friday Night Club",
   base: 300,
   speed: 200,
