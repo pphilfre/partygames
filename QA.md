@@ -1,5 +1,12 @@
 # Verification
 
+## GitHub and hosted domain · 15 November 2026
+
+- All 66 unit tests and the production build pass, including eight joining-origin cases covering the Vercel production URL, preview URLs, custom domains, stale LAN settings, local overrides and IPv6 loopback.
+- `vercel.json` supplies the SPA fallback. Verified HTTP 200 for `/`, `/setup`, `/join?room=123456` and `/room?room=123456&role=player` on `https://partygames-puce.vercel.app` after Vercel's successful GitHub deployment.
+- `npm run test:hosted` passes on the public domain: live room creation with production Convex settings, QR/link origin despite stale stored LAN settings, host reload, four independent phone joins, phone reload, read-only TV, server countdown, estimates, score reveal and demo toggle. No browser runtime errors.
+- `.env.production` contains only the two public Convex endpoints; the private deployment credential is excluded from Git. Hosted links use the domain being visited without requiring a canonical frontend URL or DNS changes.
+
 ## Convex live multiplayer · 15 November 2026
 
 - Backend schema/functions deployed to `precious-owl-595` with Convex TypeScript checks passing.
