@@ -11,3 +11,6 @@ ReactDOM.createRoot(document.getElementById("root")!).render(
     </BrowserRouter>
   </React.StrictMode>,
 );
+import "./night.css";
+import "./show.css";
+import "./showtime.css";

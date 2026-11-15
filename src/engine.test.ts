@@ -96,9 +96,7 @@ describe("game engine", () => {
       let r = writing(game);
       expect(simulate(r, players, 30)).toEqual(simulate(r, players, 30));
       r = simulate(r, players, 30);
-      expect(Object.keys(r.answers)).toHaveLength(
-        game === "bluff" ? 3 : game === "who" ? 1 : 14,
-      );
+      expect(Object.keys(r.answers)).toHaveLength(game === "bluff" ? 3 : 14);
       r = advance(r, players, 30);
       if (r.phase === "voting") {
         r = simulate(r, players, 30);

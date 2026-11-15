@@ -1,3 +1,9 @@
 node_modules/
 dist/
 *.tsbuildinfo
+.env*
+!.env.example
+!.env.production
+.convex/
+screenshots/live-*.png
+screenshots/dev-server*.log

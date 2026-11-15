@@ -16,6 +16,7 @@ import { useEffect, useRef, useState } from "react";
 import { Button } from "../components/ui";
 import { games, validateQuestion, type Game, type Question } from "../engine";
 import { useParty } from "../store";
+import { useNight } from "../session/store";
 
 import { PageTitle } from "../components/Host";
 export function Questions() {
@@ -95,6 +96,12 @@ export function Questions() {
           New question
         </Button>
       </PageTitle>
+      {useNight.getState().night && (
+        <div className="n-notice n-library-notice">
+          Changes apply to future rounds. Your current prompt and accepted
+          answers stay unchanged.
+        </div>
+      )}
       <input
         type="file"
         hidden
@@ -121,6 +128,12 @@ export function Questions() {
               throw Error(
                 "Invalid question file. Export the library to see the supported JSON format.",
               );
+            if (
+              !confirm(
+                `Import ${data.length} questions? This replaces your library of ${s.questions.length} questions. The current round keeps its saved prompt.`,
+              )
+            )
+              return;
             s.replaceQuestions(data);
             setError("");
           } catch (err) {
@@ -267,7 +280,7 @@ export function Questions() {
       >
         <Dialog.Portal>
           <Dialog.Overlay className="dialog-overlay" />
-          <Dialog.Content className="dialog-content">
+          <Dialog.Content className="dialog-content night-ui">
             <Dialog.Title>
               {s.questions.some((q) => q.id === editing?.id)
                 ? "Edit question"
@@ -495,7 +508,7 @@ export function Questions() {
       >
         <Dialog.Portal>
           <Dialog.Overlay className="dialog-overlay" />
-          <Dialog.Content className="dialog-content question-preview">
+          <Dialog.Content className="dialog-content question-preview night-ui">
             <Dialog.Title>Question preview</Dialog.Title>
             <Dialog.Description>
               {preview && games[preview.game].name} · {preview?.pack}

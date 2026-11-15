@@ -1,252 +1,203 @@
-import {
-  ArrowUpRight,
-  ChevronDown,
-  ChevronRight,
-  FlaskConical,
-  Layers,
-  LayoutDashboard,
-  Library,
-  Monitor,
-  Settings,
-  Smartphone,
-  Trophy,
-  Users,
-  Volume2,
-  VolumeX,
-  X,
-} from "lucide-react";
 import { MotionConfig } from "motion/react";
 import { useEffect } from "react";
-import { Link, NavLink, useLocation } from "react-router-dom";
-import { Mobile, TV } from "./components/Gameplay";
-import { playSound, unlockAudio } from "./sound";
+import { Link, useLocation } from "react-router-dom";
+import { X } from "lucide-react";
 import { useParty } from "./store";
-
-import { MobileNav } from "./components/Experience";
-import { ExperienceFeedback } from "./feedback";
-import { Dashboard, GameLibrary, Home } from "./pages/Dashboard";
-import { Demo } from "./pages/Demo";
-import { Leaderboard } from "./pages/Leaderboard";
-import { Lobby } from "./pages/Lobby";
+import { useNight } from "./session/store";
+import { pulse } from "./feedback";
+import { playSound, unlockAudio, setMusic } from "./sound";
+import {
+  NightGames,
+  NightSetup,
+  NightStart,
+  PrepNav,
+} from "./pages/NightStart";
+import { NightSession } from "./pages/NightSession";
 import { Questions } from "./pages/Questions";
 import { SettingsPage } from "./pages/Settings";
-const nav = [
-  ["/dashboard", "Home", LayoutDashboard],
-  ["/dashboard/games", "Game library", Library],
-  ["/dashboard/questions", "Question packs", Layers],
-  ["/leaderboard", "Championship", Trophy],
-  ["/dashboard/settings", "Settings", Settings],
-] as const;
-function Sidebar() {
-  const s = useParty();
-  return (
-    <aside className="sidebar">
-      <Link to="/" className="brand">
-        afterparty<span>✱</span>
-      </Link>
-      <div className="party-switch">
-        <span className="party-icon">✱</span>
-        <div>
-          <strong>{s.settings.party}</strong>
-          <small>Your party space</small>
-        </div>
-        <ChevronDown size={15} />
-      </div>
-      <span className="nav-caption">YOUR NEXT GREAT NIGHT</span>
-      <nav>
-        {nav.map(([to, label, Icon]) => (
-          <NavLink
-            to={to}
-            end
-            key={to}
-            className={({ isActive }) => (isActive ? "active" : "")}
-          >
-            <Icon size={18} />
-            {label}
-            {label === "Game library" && <span className="nav-count">3</span>}
-          </NavLink>
-        ))}
-      </nav>
-      <span className="nav-caption second-caption">LET’S PARTY</span>
-      <nav>
-        <NavLink to="/lobby">
-          <Users size={18} />
-          Party lobby
-          <span className="online-count">
-            {s.players.filter((p) => p.connected).length}
-          </span>
-        </NavLink>
-        <NavLink to="/display">
-          <Monitor size={18} />
-          TV display
-          <ArrowUpRight size={15} />
-        </NavLink>
-        <NavLink to="/play">
-          <Smartphone size={18} />
-          Player view
-        </NavLink>
-        <NavLink to="/demo">
-          <FlaskConical size={18} />
-          Demo playground<span className="tiny-tag">TRY IT</span>
-        </NavLink>
-      </nav>
-      <div className="sidebar-bottom">
-        <div className="local-note">
-          <span className="live-dot" />
-          <span>
-            All local. All yours.<small>Your party saves on this device.</small>
-          </span>
-        </div>
-        <div className="host-profile">
-          <span className="host-avatar">J</span>
-          <div>
-            <strong>Jamie’s house</strong>
-            <small>The host with the most</small>
-          </div>
-          <Link to="/dashboard/settings" aria-label="Host settings">
-            <Settings size={17} />
-          </Link>
-        </div>
-      </div>
-    </aside>
-  );
-}
-function Header() {
+import { JoinLive, LiveRoom } from "./pages/Live";
+import { liveActive } from "./session/transport";
+import "./live.css";
+
+function NightDriver() {
   const { pathname } = useLocation();
-  const s = useParty();
-  const page =
-    nav.find((n) => n[0] === pathname)?.[1] ||
-    { "/demo": "Demo playground", "/lobby": "Party lobby" }[pathname] ||
-    "Overview";
-  return (
-    <header className="topbar">
-      <div>
-        <span className="breadcrumb">Your party</span>
-        <ChevronRight size={14} />
-        <span>{page}</span>
-      </div>
-      <div className="top-actions">
-        <span className="local-badge">
-          <span className="live-dot" /> LOCAL PROTOTYPE
-        </span>
-        <button
-          className="icon-button"
-          aria-label="Toggle sound effects"
-          aria-pressed={s.settings.sound}
-          onClick={() => s.configure({ sound: !s.settings.sound })}
-        >
-          {s.settings.sound ? <Volume2 size={18} /> : <VolumeX size={18} />}
-        </button>
-        <Link className="top-tv" to="/display">
-          <Monitor size={16} /> Open TV display <ArrowUpRight size={14} />
-        </Link>
-      </div>
-    </header>
-  );
-}
-function AudioAndClock() {
-  const { tick, round, settings } = useParty();
+  const night = useNight((s) => s.night),
+    sound = useParty((s) => s.settings.sound);
   useEffect(() => {
-    const id = setInterval(() => {
-      if (document.visibilityState === "visible") tick();
-    }, 1000);
-    return () => clearInterval(id);
-  }, [tick]);
-  useEffect(() => {
-    const unlock = () => unlockAudio();
-    window.addEventListener("pointerdown", unlock, { once: true });
-    window.addEventListener("keydown", unlock, { once: true });
+    const sync = () => {
+      const active = [
+        "/demo",
+        "/lobby",
+        "/play",
+        "/display",
+        "/leaderboard",
+        "/room",
+      ].includes(pathname);
+      setMusic(
+        sound &&
+          active &&
+          night &&
+          !night.paused &&
+          !document.hidden &&
+          !["finished", "finale"].includes(night.status)
+          ? night.status === "lobby" ||
+            night.status === "intro" ||
+            night.status === "transition"
+            ? "lobby"
+            : night.round?.phase === "reveal"
+              ? "reveal"
+              : "play"
+          : "",
+      );
+    };
+    sync();
+    document.addEventListener("visibilitychange", sync);
     return () => {
-      window.removeEventListener("pointerdown", unlock);
-      window.removeEventListener("keydown", unlock);
+      document.removeEventListener("visibilitychange", sync);
+      setMusic("");
+    };
+  }, [pathname, sound, night?.status, night?.paused, night?.round?.phase]);
+  useEffect(() => {
+    if (
+      !["/demo", "/lobby", "/play", "/display", "/leaderboard"].includes(
+        pathname,
+      )
+    )
+      return;
+    const id = setInterval(() => {
+      if (document.visibilityState === "visible") useNight.getState().tick();
+    }, 250);
+    return () => {
+      clearInterval(id);
+      const s = useNight.getState();
+      if (!liveActive() && s.night?.status === "playing" && !s.night.paused)
+        s.pause();
+    };
+  }, [pathname]);
+  useEffect(() => {
+    const tap = (e: MouseEvent) => {
+      const target = (e.target as Element).closest(
+        "button,a,input[type=checkbox]",
+      );
+      if (target && !target.matches(":disabled")) {
+        unlockAudio();
+        pulse("tap");
+      }
+    };
+    document.addEventListener("click", tap, true);
+    const off = useNight.subscribe((s, prev) => {
+      const r = s.night?.round,
+        before = prev.night?.round,
+        id = s.demo.controlled,
+        settings = useParty.getState().settings;
+      if (s.error && s.error !== prev.error) {
+        pulse("error");
+        if (settings.sound) playSound("incorrect");
+      }
+      if (
+        r &&
+        before &&
+        r.id === before.id &&
+        r.phase === before.phase &&
+        ((r.answers[id] && r.answers[id] !== before.answers[id]) ||
+          (r.votes[id] && r.votes[id] !== before.votes[id]))
+      ) {
+        pulse("submit");
+        if (settings.sound) playSound("submit");
+      }
+      if (r?.revealReady && !before?.revealReady) {
+        pulse("success");
+        if (settings.sound) playSound("correct");
+      }
+    });
+    return () => {
+      document.removeEventListener("click", tap, true);
+      off();
     };
   }, []);
-  useEffect(() => {
-    if (settings.sound)
-      playSound(
-        round?.phase === "complete"
-          ? "winner"
-          : round?.phase === "standings"
-            ? "move"
-            : round?.phase === "reveal"
-              ? "correct"
-              : "transition",
-      );
-  }, [round?.phase, settings.sound]);
-  useEffect(() => {
-    if (settings.sound && round && round.remaining > 0 && round.remaining <= 5)
-      playSound("tick");
-  }, [round?.remaining, settings.sound]);
   return null;
 }
 export default function App() {
   const { pathname } = useLocation(),
-    s = useParty();
+    settings = useParty((s) => s.settings),
+    night = useNight((s) => s.night),
+    error = useNight((s) => s.error),
+    legacyError = useParty((s) => s.error);
+  const reduced = settings.reduced || night?.vibe === "comfortable";
   useEffect(() => {
-    const sync = (e: StorageEvent) => {
-      if (e.key === "afterparty-v1") useParty.persist.rehydrate();
-    };
-    window.addEventListener("storage", sync);
-    return () => window.removeEventListener("storage", sync);
-  }, []);
+    document.documentElement.dataset.reducedMotion = String(reduced);
+  }, [reduced]);
   useEffect(() => {
     window.scrollTo(0, 0);
+    document.title = "Afterparty · Your people. Your game night.";
   }, [pathname]);
-  useEffect(() => {
-    document.documentElement.dataset.reducedMotion = String(s.settings.reduced);
-  }, [s.settings.reduced]);
-  const standalone = ["/", "/display", "/play"].includes(pathname);
+  const support = ["/dashboard/questions", "/dashboard/settings"].includes(
+    pathname,
+  );
+  const body =
+    pathname === "/join" ||
+    (pathname === "/play" &&
+      new URLSearchParams(window.location.search).has("room")) ? (
+      <JoinLive />
+    ) : pathname === "/room" ? (
+      <LiveRoom key={window.location.search} />
+    ) : pathname === "/" || pathname === "/dashboard" ? (
+      <NightStart />
+    ) : pathname === "/setup" ? (
+      <NightSetup />
+    ) : pathname === "/dashboard/games" ? (
+      <NightGames />
+    ) : pathname === "/dashboard/questions" ? (
+      <Questions />
+    ) : pathname === "/dashboard/settings" ? (
+      <SettingsPage />
+    ) : pathname === "/play" ? (
+      <NightSession standalone="player" />
+    ) : pathname === "/display" ? (
+      <NightSession standalone="tv" />
+    ) : pathname === "/leaderboard" ? (
+      <NightSession standalone="standings" />
+    ) : ["/demo", "/lobby"].includes(pathname) ? (
+      <NightSession />
+    ) : (
+      <div className="night-ui n-not-found">
+        <h1>That party isn’t here.</h1>
+        <Link className="n-button" to="/">
+          Back to the start
+        </Link>
+      </div>
+    );
   return (
-    <MotionConfig reducedMotion={s.settings.reduced ? "always" : "user"}>
-      <AudioAndClock />
-      <ExperienceFeedback />
+    <MotionConfig reducedMotion={reduced ? "always" : "user"}>
+      <NightDriver />
       <a href="#main" className="skip-link">
         Skip to content
       </a>
-      {!standalone && <Sidebar />}
-      <div className={!standalone ? "app-shell" : ""}>
-        {!standalone && <Header />}
-        <main
-          id="main"
-          key={pathname}
-          className={!standalone ? "main-content screen-enter" : "screen-enter"}
-        >
-          {pathname === "/" ? (
-            <Home />
-          ) : pathname === "/dashboard" ? (
-            <Dashboard />
-          ) : pathname === "/dashboard/games" ? (
-            <GameLibrary />
-          ) : pathname === "/dashboard/questions" ? (
-            <Questions />
-          ) : pathname === "/dashboard/settings" ? (
-            <SettingsPage />
-          ) : pathname === "/lobby" ? (
-            <Lobby />
-          ) : pathname === "/leaderboard" ? (
-            <Leaderboard />
-          ) : pathname === "/demo" ? (
-            <Demo />
-          ) : pathname === "/display" ? (
-            <TV />
-          ) : pathname === "/play" ? (
-            <div className="play-page">
-              <Mobile />
-            </div>
-          ) : (
-            <>
-              <h1>That party isn’t here.</h1>
-              <Link to="/">Head home</Link>
-            </>
+      {support && (
+        <div className="night-ui n-support-nav">
+          <PrepNav />
+          {night && (
+            <Link className="n-return-link" to="/demo">
+              Return to your saved night
+            </Link>
           )}
-        </main>
-      </div>
-      {!standalone && <MobileNav />}
-      {s.error && (
-        <div className="toast" role="status">
-          {s.error}
-          <button aria-label="Dismiss message" onClick={s.clearError}>
-            <X size={16} />
+        </div>
+      )}
+      <main id="main" className={support ? "night-ui n-support-content" : ""}>
+        {body}
+      </main>
+      {(error || legacyError) && (
+        <div className="night-ui n-error-toast" role="alert">
+          <span>{error || legacyError}</span>
+          <button
+            className="n-icon-button"
+            aria-label="Dismiss message"
+            onClick={() => {
+              useNight.getState().clearError();
+              useParty.getState().clearError();
+            }}
+          >
+            <X size={19} />
           </button>
         </div>
       )}

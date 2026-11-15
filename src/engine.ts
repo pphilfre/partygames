@@ -138,6 +138,26 @@ export function makePlayers(n = 14): Player[] {
 }
 export const defaults: Question[] = [
   ...[
+    "What food could you happily eat every day?",
+    "What fictional world would you visit for a day?",
+    "What small thing instantly improves your day?",
+    "What would your entrance song sound like?",
+    "What is your ideal way to spend a free afternoon?",
+    "What harmless thing are you surprisingly competitive about?",
+  ].map((text, i) => ({
+    id: `party-w${i}`,
+    game: "who" as Game,
+    text,
+    answer: "",
+    category: "Easy company",
+    pack: "Easy company",
+    enabled: true,
+    sensitivity: "Comfortable",
+    skip: true,
+    guidance:
+      "Share only what feels comfortable. You can privately choose another prompt.",
+  })),
+  ...[
     [
       "What is the national animal of Scotland?",
       "A unicorn",
@@ -209,7 +229,7 @@ export const defaults: Question[] = [
     ][i],
     pack: "The Inner Circle",
     enabled: true,
-    sensitivity: "Light",
+    sensitivity: [1, 3, 6].includes(i) ? "Personal" : "Comfortable",
     skip: true,
     guidance: "Keep it fun. Share only what feels comfortable.",
   })),
@@ -435,19 +455,31 @@ export function submit(
     throw Error("Enter a valid response time.");
   if (!r.participants.includes(player.id))
     throw Error("This player is not in the round.");
+  if (r.paused) throw Error("Paused by host. Your draft is saved here.");
   if (!player.connected || !value.trim())
     throw Error("Enter an answer while connected.");
   if (r.remaining <= 0) throw Error("Time is up. Advance the round.");
   if (r.phase === "writing") {
-    if (
-      (r.game === "bluff" && !r.bluffers.includes(player.id)) ||
-      (r.game === "who" && r.author !== player.id)
-    )
+    if (r.game === "bluff" && !r.bluffers.includes(player.id))
       throw Error("Wait for the guessing phase.");
     if (r.game === "ballpark" && !Number.isFinite(Number(value)))
       throw Error("Enter a finite number.");
     if (r.game !== "ballpark" && r.answers[player.id])
       throw Error("Your answer is already locked.");
+    if (r.game === "bluff") {
+      const clean = (text: string) =>
+        text.trim().replace(/\s+/g, " ").toLocaleLowerCase();
+      if (
+        clean(value) === clean(r.question.answer) ||
+        Object.entries(r.answers).some(
+          ([id, answer]) =>
+            id !== player.id && clean(answer.value) === clean(value),
+        )
+      )
+        throw Error(
+          "That answer is already in the mix. Try a different bluff.",
+        );
+    }
     return {
       ...r,
       answers: {
@@ -500,6 +532,7 @@ export function streakBonus(r: Round, p: Player) {
   return eligible && streak >= 2 ? Math.min(300, (streak - 1) * 100) : 0;
 }
 export function calculate(r: Round, players: Player[]) {
+  players = players.filter((p) => r.participants.includes(p.id));
   const pts: Record<string, number> = Object.fromEntries(
     players.map((p) => [p.id, 0]),
   );
@@ -532,8 +565,7 @@ export function calculate(r: Round, players: Player[]) {
       else missed++;
     });
     pts[r.author] = Math.round(
-      (500 * missed) /
-        Math.max(players.filter((p) => p.connected).length - 1, 1),
+      (500 * missed) / Math.max(r.participants.length - 1, 1),
     );
   }
   if (r.game === "bluff") {
@@ -558,10 +590,12 @@ export function advance(r: Round, players: Player[], timer: number): Round {
       return { ...r, phase: "reveal", points: calculate(r, players) };
     if (r.game === "who" && !r.answers[r.author])
       throw Error(
-        "The secret author needs to answer. Simulate submissions or select the author.",
+        "A secret answer is still needed. Add time or choose another prompt.",
       );
     if (r.game === "bluff" && r.bluffers.some((id) => !r.answers[id]))
-      throw Error("All 3 bluffers need an answer. Simulate submissions first.");
+      throw Error(
+        "A bluff is still needed. Add time, supply a fallback, or choose another prompt.",
+      );
     const opts =
       r.game === "bluff"
         ? [

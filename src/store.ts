@@ -376,6 +376,23 @@ export const useParty = create<State>()(
     }),
     {
       name: "afterparty-v1",
+      version: 2,
+      migrate: (persisted) => {
+        const previous = persisted as Partial<State>;
+        const savedQuestions = previous.questions || defaults;
+        return {
+          ...previous,
+          settings: { ...config, ...previous.settings },
+          questions: [
+            ...savedQuestions,
+            ...defaults.filter(
+              (q) =>
+                q.id.startsWith("party-w") &&
+                !savedQuestions.some((saved) => saved.id === q.id),
+            ),
+          ],
+        };
+      },
       storage: createJSONStorage(() => localStorage),
       partialize: ({
         players,

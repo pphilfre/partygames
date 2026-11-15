@@ -1,6 +1,6 @@
 @import "tailwindcss";
 @font-face {
-  font-family: Inter;
+  font-family: "Plus Jakarta Sans";
   src: url(/fonts/plus-jakarta-sans.ttf) format("truetype");
   font-weight: 200 800;
   font-display: swap;
@@ -8,10 +8,10 @@
 @theme {
   --color-coral: #f57157;
   --color-ink: #242521;
-  --font-sans: "Inter", Arial, sans-serif;
+  --font-sans: "Plus Jakarta Sans", Arial, sans-serif;
 }
 :root {
-  font-family: "Inter", Arial, sans-serif;
+  font-family: "Plus Jakarta Sans", Arial, sans-serif;
   color: #292a26;
   background: #f7f7f2;
   font-synthesis: none;

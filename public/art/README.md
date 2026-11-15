@@ -1,0 +1,9 @@
+# Original character sticker sheet
+
+Asset: `cast-stickers.png`, 1776 × 888 PNG with transparency. Generated with the built-in imagegen tool on 15 November 2026; copied into this project from the tool's generated-images directory. No remote runtime dependency.
+
+Four equal columns and two equal rows, in reading order: Frog, Tiger, Flower, Alien, Cherries, Bear, Mushroom, Star. `Sticker` renders one cell using 400% × 200% background sizing; characters keep separate readable player names. Duplicate characters do not prevent play.
+
+## Exact production prompt
+
+Create one production game asset: a sprite sheet of eight original friendly party-game character portrait stickers for Afterparty. Transparent background. EXACTLY 4 columns x 2 rows equal square cells in a wide 2:1 canvas. Each character perfectly centered in its own cell, completely contained with generous 12% transparent padding, no overlap. Same visual size. No text, no labels, no letters, no UI. Tactile matte clay / vinyl cutout stickers with thick crisp white die-cut edges and subtle dimensional shading, playful confident expressive eyes, simple bold silhouettes, polished collectible videogame art, friendly to families, not babyish. In reading order: mint green frog with small round eyes; tangerine tiger with tiny pointed ears; lilac flower creature with yellow face; pool blue alien with antenna; coral cherry twins with dark green stems; honey-colored bear with rounded ears; violet mushroom with cream face; golden-yellow star creature. Midnight blue facial details. No existing brand mascots, no props beyond specified character features, no confetti. White outlines around every character remain visible against a cloud blue UI. Consistent studio lighting. The silhouettes should be legible as tiny avatar icons as well as large hero stickers.
